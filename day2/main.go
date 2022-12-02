@@ -15,24 +15,50 @@ var winningMoves = map[rune]rune{
 	'C': 'A',
 }
 
+var losingMoves = map[rune]rune{
+	'B': 'A',
+	'C': 'B',
+	'A': 'C',
+}
+
 func main() {
-	mySum, oppSum := 0, 0
 	rows := strings.Split(input, "\n")
-	for _, row := range rows {
-		myPoints, oppPoints := calculatePoints(normalisePlay(rune(row[2])), normalisePlay(rune(row[0])))
-		mySum += myPoints
-		oppSum += oppPoints
-	}
+	mySum, oppSum := calculateStrategyOutcome(rows)
 	fmt.Printf("My points: %d\n", mySum)
 	fmt.Printf("Opp poitns %d\n", oppSum)
 }
 
-func calculatePoints(myPlay, oppPlay rune) (myPoints, oppPoints int) {
+func calculateStrategyOutcome(rows []string) (int, int) {
+	mySum, oppSum := 0, 0
+	for _, row := range rows {
+		myPoints, oppPoints := calculatePoints(rune(row[0]), rune(row[2]))
+		mySum += myPoints
+		oppSum += oppPoints
+	}
+	return mySum, oppSum
+}
+
+func calculatePoints(oppPlay, whatMove rune) (myPoints, oppPoints int) {
+	myPlay := convertMoveToPlay(whatMove, oppPlay)
+
 	myPoints, oppPoints = getRoundPoints(myPlay, oppPlay)
 
 	myPoints += getPlayPoints(myPlay)
 	oppPoints += getPlayPoints(oppPlay)
 	return
+}
+
+func convertMoveToPlay(move, oppPlay rune) rune {
+	if move == 'X' {
+		// lose
+		return losingMoves[oppPlay]
+	} else if move == 'Y' {
+		// draw
+		return oppPlay
+	} else {
+		// win
+		return winningMoves[oppPlay]
+	}
 }
 
 func getRoundPoints(myPlay, oppPlay rune) (myPoints, oppPoints int) {
@@ -48,25 +74,13 @@ func getRoundPoints(myPlay, oppPlay rune) (myPoints, oppPoints int) {
 	}
 }
 
-func normalisePlay(play rune) rune {
-	switch play {
-	case 'X':
-		return 'A'
-	case 'Y':
-		return 'B'
-	case 'Z':
-		return 'C'
-	}
-	return play
-}
-
 func getPlayPoints(play rune) int {
 	switch play {
-	case 'A', 'X':
+	case 'A':
 		return 1
-	case 'B', 'Y':
+	case 'B':
 		return 2
-	case 'C', 'Z':
+	case 'C':
 		return 3
 	}
 	return -100000000000
