@@ -5,19 +5,19 @@ import (
 	"fmt"
 )
 
-// time needed 6:30
+// time needed 1min 43s
 
 //go:embed input.txt
 var input string
 
 func main() {
-	fmt.Println(findMarker(input))
+	fmt.Println(findMarker(input, 14))
 }
 
-func findMarker(msg string) int {
+func findMarker(msg string, markLength int) int {
 	for i := range msg {
 		lettersInMarker := map[rune]struct{}{}
-		for j := 0; j < 4; j++ {
+		for j := 0; j < markLength; j++ {
 			letter := rune(msg[i+j])
 			if _, ok := lettersInMarker[letter]; ok {
 				goto next
@@ -25,7 +25,7 @@ func findMarker(msg string) int {
 				lettersInMarker[letter] = struct{}{}
 			}
 		}
-		return i + 4
+		return i + markLength
 	next:
 	}
 	return -1
