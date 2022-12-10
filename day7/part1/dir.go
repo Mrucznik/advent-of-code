@@ -21,7 +21,6 @@ func (d *Dir) GetSize() int {
 	for _, file := range d.files {
 		size += file.GetSize()
 	}
-	fmt.Printf("dir %s size: %d\n", d.name, size)
 	return size
 }
 
