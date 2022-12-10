@@ -64,6 +64,18 @@ func (fs *Filesystem) GetDirsBelowSize(size int) []*Dir {
 	return result
 }
 
+func (fs *Filesystem) GetDirsBiggerEqSize(size int) []*Dir {
+	dirs := []*Dir{fs.root}
+	dirs = append(dirs, fs.root.GetDirs()...)
+	var result []*Dir
+	for _, dir := range dirs {
+		if dir.GetSize() >= size {
+			result = append(result, dir)
+		}
+	}
+	return result
+}
+
 func (d *Dir) GetDirs() []*Dir {
 	var dirs []*Dir
 	dirs = append(dirs, d.dirs...)
