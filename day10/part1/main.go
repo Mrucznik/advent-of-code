@@ -8,6 +8,7 @@ import (
 )
 
 // part1 time needed: 15min
+// part 2 time needed: 18min
 
 //go:embed input.txt
 var input string
@@ -15,7 +16,7 @@ var input string
 var X int
 
 func main() {
-	cycle := 1
+	cycle := 0
 	X = 1
 
 	rows := strings.Split(input, "\n")
@@ -23,31 +24,38 @@ func main() {
 		raw := strings.Split(row, " ")
 		cmd := raw[0]
 		if cmd == "addx" {
-			cycle++
 			signalStrength(cycle)
+			cycle++
 			arg, err := strconv.Atoi(raw[1])
 			if err != nil {
 				panic(err)
 			}
+			signalStrength(cycle)
 			cycle++
 
 			X += arg
-			signalStrength(cycle)
-
 		} else {
 			// noop
-			cycle++
 			signalStrength(cycle)
+			cycle++
 		}
 	}
+	fmt.Println()
 	fmt.Println("result: ", result)
 }
 
 var result int
 
 func signalStrength(c int) {
-	if c == 20 || c == 60 || c == 100 || c == 140 || c == 180 || c == 220 {
-		result += X * c
-		fmt.Printf("X: %d c: %d r: %d\n", X, c, X*c)
+	if c%40 == 0 {
+		fmt.Println("")
 	}
+	// draw
+	draw := c % 40
+	if X-1 == draw || X == draw || X+1 == draw {
+		fmt.Print("#")
+	} else {
+		fmt.Print(".")
+	}
+
 }
