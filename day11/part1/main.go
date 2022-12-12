@@ -3,7 +3,7 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"math/big"
+	"math"
 	"sort"
 )
 
@@ -29,22 +29,16 @@ func (m Monkeys) Swap(i, j int) {
 }
 
 type Monkey struct {
-	items           []*big.Int
-	operation       func(old *big.Int) *big.Int
+	items           []int
+	operation       func(old int) int
 	testDivisableBy int
 	ifTrueMonkey    int
 	ifFalseMonkey   int
 	inspections     int
 }
 
-func isDivisable(a *big.Int, b int) bool {
-	result := big.NewInt(0)
-	mod := result.Mod(a, big.NewInt(int64(b)))
-	if mod.CmpAbs(big.NewInt(0)) == 0 {
-		return true
-	} else {
-		return false
-	}
+func isDivisable(a int, b int) bool {
+	return a%b == 0
 }
 
 func (m *Monkey) round() {
@@ -58,24 +52,25 @@ func (m *Monkey) round() {
 		}
 	}
 
-	m.items = []*big.Int{}
+	m.items = []int{}
 }
 
 func (m *Monkey) throwTo(itemNr, monkeyNr int) {
 	monkeys[monkeyNr].items = append(monkeys[monkeyNr].items, m.items[itemNr])
 }
 
-func (m *Monkey) inspectItem(nr int) *big.Int {
+func (m *Monkey) inspectItem(nr int) int {
 	newWorryLevel := m.operation(m.items[nr])
+	newWorryLevel = int(math.Floor(float64(newWorryLevel) / 3))
 	m.items[nr] = newWorryLevel
 	m.inspections++
 	return newWorryLevel
 }
 
 func main() {
-	monkeys = testInput()
+	monkeys = mainInput()
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 20; i++ {
 		fmt.Println(i)
 		for _, monkey := range monkeys {
 			monkey.round()
