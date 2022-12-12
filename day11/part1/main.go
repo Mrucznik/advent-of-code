@@ -3,11 +3,12 @@ package main
 import (
 	_ "embed"
 	"fmt"
-	"math"
 	"sort"
 )
 
 // part 1 time needed: 32min
+
+// part 2 time needed: 44min because of rewrite to big.Int xD
 
 //go:embed input.txt
 var input string
@@ -61,16 +62,22 @@ func (m *Monkey) throwTo(itemNr, monkeyNr int) {
 
 func (m *Monkey) inspectItem(nr int) int {
 	newWorryLevel := m.operation(m.items[nr])
-	newWorryLevel = int(math.Floor(float64(newWorryLevel) / 3))
+	newWorryLevel = newWorryLevel % commonDenominator
 	m.items[nr] = newWorryLevel
 	m.inspections++
 	return newWorryLevel
 }
 
+var commonDenominator = 1
+
 func main() {
 	monkeys = mainInput()
 
-	for i := 0; i < 20; i++ {
+	for _, monkey := range monkeys {
+		commonDenominator *= monkey.testDivisableBy
+	}
+
+	for i := 0; i < 10000; i++ {
 		fmt.Println(i)
 		for _, monkey := range monkeys {
 			monkey.round()

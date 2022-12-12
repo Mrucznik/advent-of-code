@@ -1,5 +1,17 @@
 package main
 
+// we have 3 operations:
+// adding
+// +1, +7, +8, +4, +5
+// multiplying by
+// pow2
+
+// and modulos:
+// 2, 3, 5, 7, 11, 13, 17, 19
+
+// mogę dzielić modulo poprzez wspólny mianownik wszystkich testów modulo
+// 9699690
+
 func mainInput() []*Monkey {
 	monkeys := []*Monkey{{
 		items: []int{89, 73, 66, 57, 64, 80},
