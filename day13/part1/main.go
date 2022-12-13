@@ -4,18 +4,36 @@ import (
 	_ "embed"
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 )
 
 // day 13 part 1 time needed: 1h 25min
+// day 13 part 2 time needed: 9min 30s
 
 //go:embed input.txt
 var input string
 
+type Packets [][]interface{}
+
+func (p Packets) Len() int {
+	return len(p)
+}
+
+func (p Packets) Less(i, j int) bool {
+	return comparison(p[i], p[j]) == 1
+}
+
+func (p Packets) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
+}
+
 func main() {
 	rows := strings.Split(input, "\n")
+	rows = append(rows, "[[2]]")
+	rows = append(rows, "[[6]]")
 
-	lines := make([][]interface{}, 0, len(rows))
+	lines := make(Packets, 0, len(rows))
 	for _, line := range rows {
 		if len(line) == 0 {
 			continue
@@ -39,6 +57,17 @@ func main() {
 	}
 
 	fmt.Println(rightOrderIndicesSum)
+
+	sort.Sort(lines)
+	mul := 1
+	for i, line := range lines {
+		fmt.Println(line)
+		if fmt.Sprint(line) == "[[6]]" || fmt.Sprint(line) == "[[2]]" {
+			mul *= i + 1
+		}
+	}
+
+	fmt.Printf("result: %d\n", mul)
 }
 
 func comparison(left, right interface{}) int {
