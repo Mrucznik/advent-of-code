@@ -16,17 +16,16 @@ var input string
 type Valve struct {
 	name        string
 	rate        int
-	open        bool
 	connections []string
 }
 
-var valves []Valve
+var valves []*Valve
 
 func main() {
 	rows := strings.Split(input, "\n")
-	var beginValve *Valve
+	var beginValve int
 
-	for _, row := range rows {
+	for i, row := range rows {
 		re := regexp.MustCompile("Valve (..) has flow rate=(\\d+); tunnels? leads? to valves? ((?:[A-Z]{2}[ ,]{0,2})+)")
 		raw := re.FindStringSubmatch(row)
 
@@ -34,16 +33,16 @@ func main() {
 		flowRate, _ := strconv.Atoi(raw[2])
 		connections := strings.Split(raw[3], ", ")
 
-		valves = append(valves, Valve{valve, flowRate, false, connections})
+		valves = append(valves, &Valve{valve, flowRate, connections})
 		if valve == "AA" {
-			beginValve = &valves[len(valves)-1]
+			beginValve = i
 		}
 	}
 
 	// odpalamy symulacje
 	var simulations []*Simulation
 	simulations = append(simulations, &Simulation{
-		valves:       valves,
+		opened:       map[int]struct{}{},
 		currentValve: beginValve,
 	})
 

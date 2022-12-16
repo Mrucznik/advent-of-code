@@ -6,25 +6,21 @@ import (
 	"strings"
 )
 
-type Choices int
-
 type Simulation struct {
-	valves []Valve
-
-	currentValve *Valve
+	currentValve int
 	pressure     int
+
+	opened map[int]struct{}
 }
 
 func (s *Simulation) Hash() string {
 	sb := strings.Builder{}
-	for i, valve := range s.valves {
-		if valve.open {
-			sb.WriteString(strconv.Itoa(i))
-		}
+	for i := range s.opened {
+		sb.WriteString(strconv.Itoa(i))
 	}
 	sb.WriteString("_")
 	sb.WriteString(strconv.Itoa(s.pressure))
-	sb.WriteString(s.currentValve.name)
+	sb.WriteString(valves[s.currentValve].name)
 	return sb.String()
 }
 
@@ -44,38 +40,35 @@ func (s *Simulation) CollectPressure() {
 }
 
 func (s *Simulation) NextChoice(choice int) *Simulation {
-	newValves := make([]Valve, len(s.valves))
-	for i := 0; i < len(s.valves); i++ {
-		cpy := s.valves[i]
-		newValves[i] = cpy
+	newOpened := make(map[int]struct{}, len(s.opened))
+	for k, v := range s.opened {
+		newOpened[k] = v
 	}
 
 	newSim := &Simulation{
-		valves:       newValves,
+		opened:       newOpened,
 		pressure:     s.pressure,
-		currentValve: nil,
+		currentValve: -1,
 	}
-	if choice >= len(s.currentValve.connections) {
+	if choice >= len(s.curr().connections) {
 		// open current valve
-		for i, valve := range s.valves {
-			if s.currentValve.name == valve.name {
-				newSim.currentValve = &newSim.valves[i]
+		for i, valve := range valves {
+			if s.curr().name == valve.name {
+				newSim.currentValve = i
+				newSim.opened[i] = struct{}{}
 			}
 		}
 
-		newSim.currentValve.open = true
 		//fmt.Printf("opening %s\n", newSim.currentValve.name)
 	} else {
 		// new choice
-		chosenConnection := s.currentValve.connections[choice]
-		var chosen *Valve
-		for i, valve := range newValves {
+		chosenConnection := s.curr().connections[choice]
+		for i, valve := range valves {
 			if valve.name == chosenConnection {
-				chosen = &newValves[i]
+				newSim.currentValve = i
+				break
 			}
 		}
-
-		newSim.currentValve = chosen
 		//fmt.Printf("moving to %s\n", newSim.currentValve.name)
 	}
 
@@ -83,17 +76,17 @@ func (s *Simulation) NextChoice(choice int) *Simulation {
 }
 
 func (s *Simulation) getPossibleChoicesNumber() int {
-	if s.currentValve.open {
-		return len(s.currentValve.connections)
+	if s.isOpen(s.currentValve) || valves[s.currentValve].rate == 0 {
+		return len(s.curr().connections)
 	} else {
-		return len(s.currentValve.connections) + 1
+		return len(s.curr().connections) + 1
 	}
 }
 
-func (s *Simulation) getBestValves() []Valve {
-	var result []Valve
-	for _, valve := range s.valves {
-		if !valve.open && valve.rate > 0 {
+func (s *Simulation) getBestValves() []*Valve {
+	var result []*Valve
+	for i, valve := range valves {
+		if !s.isOpen(i) && valve.rate > 0 {
 			result = append(result, valve)
 		}
 	}
@@ -103,10 +96,11 @@ func (s *Simulation) getBestValves() []Valve {
 	return result
 }
 
-func (s *Simulation) getOpenValves() []Valve {
-	var result []Valve
-	for _, valve := range s.valves {
-		if valve.open && valve.rate > 0 {
+func (s *Simulation) getOpenValves() []*Valve {
+	var result []*Valve
+	for i := range s.opened {
+		valve := valves[i]
+		if valve.rate > 0 {
 			result = append(result, valve)
 		}
 	}
@@ -143,4 +137,13 @@ func (s *Simulation) naivePossibleGain(stepsToEnd int) int {
 
 func (s *Simulation) getGain() int {
 	return s.getOpenedValvesGain(1)
+}
+
+func (s *Simulation) isOpen(i int) bool {
+	_, ok := s.opened[i]
+	return ok
+}
+
+func (s *Simulation) curr() *Valve {
+	return valves[s.currentValve]
 }
