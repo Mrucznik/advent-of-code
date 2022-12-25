@@ -69,7 +69,6 @@ func main() {
 
 		if rock.fall() {
 			fallen++
-			fmt.Printf("%d rock fallen %s\n", fallen, rock)
 			currRock = (currRock + 1) % len(rocks)
 			rock = rocks[currRock]
 			rock.spawn()

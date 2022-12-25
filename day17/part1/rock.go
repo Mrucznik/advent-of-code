@@ -40,7 +40,6 @@ func (r *Rock) spawn() {
 	bottom := findSpaceBottom()
 	r.y = bottom + 3 + r.height - 1
 	r.x = 2
-	fmt.Println(bottom, "spawned", r)
 }
 
 var lastBottom int
@@ -51,7 +50,6 @@ func findSpaceBottom() int {
 		for x := 0; x < maxX; x++ {
 			if space[x][y] == 1 {
 				nextRow = true
-				fmt.Println("lol", y, x)
 				break
 			}
 		}
