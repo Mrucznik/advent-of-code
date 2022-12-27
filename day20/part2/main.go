@@ -10,7 +10,7 @@ import (
 )
 
 // part 1 time needed: 3h because lack of L75 & L86
-// part 2 time needed:
+// part 2 time needed: 8min
 
 //go:embed input.txt
 var input string
@@ -26,6 +26,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
+		numbers[i] *= 811589153
 	}
 
 	l := len(numbers)
@@ -64,35 +65,37 @@ func encrypt(numbers []int) []int {
 
 	ll := len(queue) - 1
 
-	for _, element := range queue {
-		move := element.Value.(int)
-		if move == 0 {
-			continue
-		}
+	for i := 0; i < 10; i++ {
+		for _, element := range queue {
+			move := element.Value.(int)
+			if move == 0 {
+				continue
+			}
 
-		curr := element
-		if move > 0 {
-			for i := 0; i < move%ll; i++ {
-				curr = curr.Next()
-				if curr == nil {
-					curr = elements.Front()
-					if curr == element {
-						curr = curr.Next()
+			curr := element
+			if move > 0 {
+				for i := 0; i < move%ll; i++ {
+					curr = curr.Next()
+					if curr == nil {
+						curr = elements.Front()
+						if curr == element {
+							curr = curr.Next()
+						}
 					}
 				}
-			}
-			elements.MoveAfter(element, curr)
-		} else {
-			for i := 0; i < -move%ll; i++ {
-				curr = curr.Prev()
-				if curr == nil {
-					curr = elements.Back()
-					if curr == element {
-						curr = curr.Prev()
+				elements.MoveAfter(element, curr)
+			} else {
+				for i := 0; i < -move%ll; i++ {
+					curr = curr.Prev()
+					if curr == nil {
+						curr = elements.Back()
+						if curr == element {
+							curr = curr.Prev()
+						}
 					}
 				}
+				elements.MoveBefore(element, curr)
 			}
-			elements.MoveBefore(element, curr)
 		}
 	}
 
