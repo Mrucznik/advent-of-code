@@ -8,6 +8,7 @@ import (
 )
 
 // time needed part 1: 2h
+// time needed part 2: 12min
 
 type Decision int
 
@@ -133,11 +134,11 @@ func (s *Simulation) removeMaterials(cost Cost) {
 // we can construct, or not construct
 
 func main() {
-	result := 0
-	for i, blueprint := range mainBlueprints {
+	result := 1
+	for _, blueprint := range mainBlueprints[:3] {
 		bpResult := evaluateBlueprint(blueprint)
 		fmt.Println("---- bpResult", bpResult)
-		result += (i + 1) * bpResult
+		result *= bpResult
 	}
 
 	fmt.Println(result)
@@ -149,7 +150,7 @@ func evaluateBlueprint(blueprint *Blueprint) int {
 	beginSim := NewSimulation(blueprint)
 
 	simulations[beginSim.hash()] = beginSim
-	for i := 0; i < 24; i++ {
+	for i := 0; i < 32; i++ {
 		fmt.Println("step", i)
 
 		// create simulations based on available decisions
@@ -170,7 +171,7 @@ func evaluateBlueprint(blueprint *Blueprint) int {
 		// find potential gain
 		minimalPotentialGain := int(0)
 		for _, simulation := range deduplicated {
-			potentialGain := int(simulation.geodes) + int(simulation.geodeRobots)*(24-i)
+			potentialGain := int(simulation.geodes) + int(simulation.geodeRobots)*(32-i)
 			if potentialGain > minimalPotentialGain {
 				minimalPotentialGain = potentialGain
 			}
@@ -179,7 +180,7 @@ func evaluateBlueprint(blueprint *Blueprint) int {
 		// remove simulations that has no potential to get more geodes
 		for key, simulation := range deduplicated {
 			potentialGain := int(simulation.geodes)
-			for j := 0; j < 24-i; j++ {
+			for j := 0; j < 32-i; j++ {
 				potentialGain += int(simulation.geodeRobots) + j
 			}
 
