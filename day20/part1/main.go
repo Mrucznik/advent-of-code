@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// part 1 time needed: 3h because lack of L74 & L85
+// part 1 time needed: 3h because lack of L75 & L86
 // part 2 time needed:
 
 //go:embed input.txt
