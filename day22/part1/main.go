@@ -6,8 +6,10 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 )
+
+// part 1 took 2h (last letter in input was not read)
+// part 2 took
 
 //go:embed input.txt
 var input string
@@ -109,37 +111,34 @@ func main() {
 
 	ja := Ja{0, 0, 0}
 
-	re := regexp.MustCompile("(\\d+)([LR])")
+	re := regexp.MustCompile("(\\d+|[LR])")
 	matches := re.FindAllStringSubmatch(sequences, -1)
 	for _, match := range matches {
 		steps, err := strconv.Atoi(match[1])
 		if err != nil {
-			panic(err)
-		}
-		turn := match[2]
-
-		fmt.Println(steps, turn)
-
-		// do the move
-		ja.move(steps)
-		if turn == "L" {
-			ja.L()
-		} else {
-			ja.R()
-		}
-		fmt.Println(ja)
-
-		for i := 0; i < maxY; i++ {
-			for j := 0; j < maxX; j++ {
-				if moves[i][j] > 0 {
-					fmt.Printf("\033[%dm%c\033[0m", 30+moves[i][j], space[i][j])
-				} else {
-					fmt.Print(string(space[i][j]))
-				}
+			turn := match[1]
+			if turn == "L" {
+				ja.L()
+			} else {
+				ja.R()
 			}
-			fmt.Println()
+		} else {
+			// do the move
+			ja.move(steps)
 		}
-		time.Sleep(10 * time.Second)
+
+		//fmt.Println(ja)
+		//
+		//for i := 0; i < maxY; i++ {
+		//	for j := 0; j < maxX; j++ {
+		//		if moves[i][j] > 0 {
+		//			fmt.Printf("\033[%dm%c\033[0m", 30+moves[i][j], space[i][j])
+		//		} else {
+		//			fmt.Print(string(space[i][j]))
+		//		}
+		//	}
+		//	fmt.Println()
+		//}
 	}
 
 	fmt.Println(1000*(ja.y+1) + 4*(ja.x+1) + ja.facing)
