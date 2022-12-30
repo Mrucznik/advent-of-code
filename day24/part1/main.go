@@ -10,7 +10,7 @@ import (
 var input string
 
 // blizards: reading 3:30
-// part 1: 1h 11min +
+// part 1: 1h 20min +
 // part 2:
 
 type Elf struct {
@@ -20,17 +20,8 @@ type Elf struct {
 }
 
 func (e *Elf) move() {
-	newx := (e.x + e.mx) % maxx
-	if newx < 0 {
-		newx += maxx
-	}
-
-	newy := (e.y + e.my) % maxy
-	if newy < 0 {
-		newx += maxy
-	}
-
-	e.x, e.y = newx, newy
+	e.x += e.mx
+	e.y += e.my
 	e.moves++
 }
 
@@ -56,8 +47,17 @@ func NewBlizzard(x int, y int, mx int, my int) *Blizzard {
 }
 
 func (b *Blizzard) move() {
-	b.x += b.mx
-	b.y += b.my
+	newx := (b.x + b.mx) % maxx
+	if newx < 0 {
+		newx += maxx
+	}
+
+	newy := (b.y + b.my) % maxy
+	if newy < 0 {
+		newx += maxy
+	}
+
+	b.x, b.y = newx, newy
 }
 
 func (b *Blizzard) collide(x, y int) bool {
@@ -97,17 +97,20 @@ func main() {
 		for elf := range won {
 			if elf.moves < min {
 				min = elf.moves
-				fmt.Println("winner", elf.moves)
+				fmt.Printf("winner %+v\n", elf)
 			}
 		}
 	}()
 
+	fmt.Println("max", maxx, maxy)
+
 	totalElves := 0
 	fmt.Println("stage 1")
-	for i := 0; i < maxx*maxx*maxy*maxy; i++ {
+	for i := 0; i < 100; i++ {
 		elves[totalElves] = &Elf{x: 0, y: 0, mx: 0, my: 0, moves: i}
 		totalElves++
 
+		clones := []*Elf{}
 		for key, elf := range elves {
 			for _, blizzard := range blizzards {
 				blizzard.move()
@@ -123,13 +126,13 @@ func main() {
 				won <- elf
 				continue
 			}
+			clones = append(clones, elf.clone()...)
+		}
 
-			for _, clone := range elf.clone() {
-				if !process(clone, blizzards) {
-					elves[totalElves] = clone
-					totalElves++
-				}
-			}
+		// add clones
+		for _, clone := range clones {
+			elves[totalElves] = clone
+			totalElves++
 		}
 	}
 }
